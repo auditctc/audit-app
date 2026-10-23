@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import { ArrowLeft, ArrowRight } from 'lucide-react'
@@ -31,7 +31,7 @@ const initialProcesses = [
   { process: 'Packing', prod_cap: 'In-house', control_points: '', equipment: '', test_cap: '' },
 ]
 
-export default function NewAssessmentPage() {
+function AssessmentForm() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const auditType = searchParams.get('type') || 'factory'
@@ -95,83 +95,87 @@ export default function NewAssessmentPage() {
   }
 
   return (
-    <main className="min-h-screen bg-slate-50 dark:bg-slate-900 p-6 md:p-12 text-slate-800 dark:text-slate-100">
-      <div className="max-w-6xl mx-auto space-y-8">
-        
-        {/* Navigation & Header */}
-        <div className="flex items-center justify-between">
-          <button
-            onClick={() => router.push('/')}
-            className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400 hover:text-slate-900 transition font-medium"
-          >
-            <ArrowLeft className="w-4 h-4" /> Back to Dashboard
-          </button>
-          <span className={`text-xs uppercase tracking-wider font-semibold px-3 py-1 rounded-full ${auditType === 'mill' ? 'bg-emerald-100 text-emerald-800' : 'bg-blue-100 text-blue-800'}`}>
-            {auditType === 'mill' ? 'Mill Assessment Setup' : 'Step 1: Capability & Capacity'}
-          </span>
+    <div className="max-w-6xl mx-auto space-y-8">
+      {/* Navigation & Header */}
+      <div className="flex items-center justify-between">
+        <button
+          onClick={() => router.push('/')}
+          className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400 hover:text-slate-900 transition font-medium"
+        >
+          <ArrowLeft className="w-4 h-4" /> Back to Dashboard
+        </button>
+        <span className={`text-xs uppercase tracking-wider font-semibold px-3 py-1 rounded-full ${auditType === 'mill' ? 'bg-emerald-100 text-emerald-800' : 'bg-blue-100 text-blue-800'}`}>
+          {auditType === 'mill' ? 'Mill Assessment Setup' : 'Step 1: Capability & Capacity'}
+        </span>
+      </div>
+
+      <form onSubmit={handleNext} className="space-y-6">
+        {/* Section 1: Factory Information */}
+        <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-300 dark:border-slate-700 shadow-sm overflow-hidden">
+          <div className={`text-white px-6 py-3 font-bold text-center uppercase tracking-wide text-sm ${auditType === 'mill' ? 'bg-emerald-800' : 'bg-slate-800'}`}>
+            {auditType === 'mill' ? 'Mill Information' : 'Factory information'}
+          </div>
+          <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+            <div className="flex flex-col">
+              <label className="font-semibold text-slate-600 dark:text-slate-400 mb-1">Assessment Title:</label>
+              <input type="text" name="title" value={formData.title} onChange={handleChange} className="p-2.5 border rounded-xl bg-transparent border-slate-300" required />
+            </div>
+            <div className="flex flex-col">
+              <label className="font-semibold text-slate-600 dark:text-slate-400 mb-1">Vendor name:</label>
+              <input type="text" name="vendor_name" value={formData.vendor_name} onChange={handleChange} className="p-2.5 border rounded-xl bg-transparent border-slate-300" required />
+            </div>
+            <div className="flex flex-col">
+              <label className="font-semibold text-slate-600 dark:text-slate-400 mb-1">Factory Name:</label>
+              <input type="text" name="factory_name" value={formData.factory_name} onChange={handleChange} className="p-2.5 border rounded-xl bg-transparent border-slate-300" required />
+            </div>
+            <div className="flex flex-col">
+              <label className="font-semibold text-slate-600 dark:text-slate-400 mb-1">Auditor Name:</label>
+              <input type="text" name="auditor_name" value={formData.auditor_name} onChange={handleChange} className="p-2.5 border rounded-xl bg-transparent border-slate-300" required />
+            </div>
+            <div className="flex flex-col md:col-span-2">
+              <label className="font-semibold text-slate-600 dark:text-slate-400 mb-1">Factory address:</label>
+              <input type="text" name="factory_address" value={formData.factory_address} onChange={handleChange} className="p-2.5 border rounded-xl bg-transparent border-slate-300" />
+            </div>
+            <div className="flex flex-col md:col-span-2">
+              <label className="font-semibold text-slate-600 dark:text-slate-400 mb-1">Fty contact person / Position / e-mail:</label>
+              <input type="text" name="contact_person" value={formData.contact_person} onChange={handleChange} className="p-2.5 border rounded-xl bg-transparent border-slate-300" />
+            </div>
+            <div className="flex flex-col">
+              <label className="font-semibold text-slate-600 dark:text-slate-400 mb-1">Telephone:</label>
+              <input type="text" name="telephone" value={formData.telephone} onChange={handleChange} className="p-2.5 border rounded-xl bg-transparent border-slate-300" />
+            </div>
+            <div className="flex flex-col">
+              <label className="font-semibold text-slate-600 dark:text-slate-400 mb-1">Current Products:</label>
+              <input type="text" name="current_products" value={formData.current_products} onChange={handleChange} className="p-2.5 border rounded-xl bg-transparent border-slate-300" />
+            </div>
+            <div className="flex flex-col md:col-span-2">
+              <label className="font-semibold text-slate-600 dark:text-slate-400 mb-1">Potential products for CTC:</label>
+              <input type="text" name="potential_products" value={formData.potential_products} onChange={handleChange} className="p-2.5 border rounded-xl bg-transparent border-slate-300" />
+            </div>
+          </div>
         </div>
 
-        <form onSubmit={handleNext} className="space-y-6">
-          
-          {/* Section 1: Factory Information */}
-          <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-300 dark:border-slate-700 shadow-sm overflow-hidden">
-            <div className={`text-white px-6 py-3 font-bold text-center uppercase tracking-wide text-sm ${auditType === 'mill' ? 'bg-emerald-800' : 'bg-slate-800'}`}>
-              {auditType === 'mill' ? 'Mill Information' : 'Factory information'}
-            </div>
-            <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-              <div className="flex flex-col">
-                <label className="font-semibold text-slate-600 dark:text-slate-400 mb-1">Assessment Title:</label>
-                <input type="text" name="title" value={formData.title} onChange={handleChange} className="p-2.5 border rounded-xl bg-transparent border-slate-300" required />
-              </div>
-              <div className="flex flex-col">
-                <label className="font-semibold text-slate-600 dark:text-slate-400 mb-1">Vendor name:</label>
-                <input type="text" name="vendor_name" value={formData.vendor_name} onChange={handleChange} className="p-2.5 border rounded-xl bg-transparent border-slate-300" required />
-              </div>
-              <div className="flex flex-col">
-                <label className="font-semibold text-slate-600 dark:text-slate-400 mb-1">Factory Name:</label>
-                <input type="text" name="factory_name" value={formData.factory_name} onChange={handleChange} className="p-2.5 border rounded-xl bg-transparent border-slate-300" required />
-              </div>
-              <div className="flex flex-col">
-                <label className="font-semibold text-slate-600 dark:text-slate-400 mb-1">Auditor Name:</label>
-                <input type="text" name="auditor_name" value={formData.auditor_name} onChange={handleChange} className="p-2.5 border rounded-xl bg-transparent border-slate-300" required />
-              </div>
-              <div className="flex flex-col md:col-span-2">
-                <label className="font-semibold text-slate-600 dark:text-slate-400 mb-1">Factory address:</label>
-                <input type="text" name="factory_address" value={formData.factory_address} onChange={handleChange} className="p-2.5 border rounded-xl bg-transparent border-slate-300" />
-              </div>
-              <div className="flex flex-col md:col-span-2">
-                <label className="font-semibold text-slate-600 dark:text-slate-400 mb-1">Fty contact person / Position / e-mail:</label>
-                <input type="text" name="contact_person" value={formData.contact_person} onChange={handleChange} className="p-2.5 border rounded-xl bg-transparent border-slate-300" />
-              </div>
-              <div className="flex flex-col">
-                <label className="font-semibold text-slate-600 dark:text-slate-400 mb-1">Telephone:</label>
-                <input type="text" name="telephone" value={formData.telephone} onChange={handleChange} className="p-2.5 border rounded-xl bg-transparent border-slate-300" />
-              </div>
-              <div className="flex flex-col">
-                <label className="font-semibold text-slate-600 dark:text-slate-400 mb-1">Current Products:</label>
-                <input type="text" name="current_products" value={formData.current_products} onChange={handleChange} className="p-2.5 border rounded-xl bg-transparent border-slate-300" />
-              </div>
-              <div className="flex flex-col md:col-span-2">
-                <label className="font-semibold text-slate-600 dark:text-slate-400 mb-1">Potential products for CTC:</label>
-                <input type="text" name="potential_products" value={formData.potential_products} onChange={handleChange} className="p-2.5 border rounded-xl bg-transparent border-slate-300" />
-              </div>
-            </div>
-          </div>
+        {/* Proceed Button */}
+        <div className="flex justify-end pt-4">
+          <button
+            type="submit"
+            disabled={loading}
+            className={`px-8 py-3.5 text-white font-semibold rounded-xl flex items-center gap-2 shadow-md transition disabled:opacity-50 ${auditType === 'mill' ? 'bg-emerald-600 hover:bg-emerald-700' : 'bg-blue-600 hover:bg-blue-700'}`}
+          >
+            {loading ? 'Saving Data...' : auditType === 'mill' ? 'Start Mill Assessment Questionnaire' : 'Next: Factory Assessment Questionnaire'} <ArrowRight className="w-5 h-5" />
+          </button>
+        </div>
+      </form>
+    </div>
+  )
+}
 
-          {/* Proceed Button */}
-          <div className="flex justify-end pt-4">
-            <button
-              type="submit"
-              disabled={loading}
-              className={`px-8 py-3.5 text-white font-semibold rounded-xl flex items-center gap-2 shadow-md transition disabled:opacity-50 ${auditType === 'mill' ? 'bg-emerald-600 hover:bg-emerald-700' : 'bg-blue-600 hover:bg-blue-700'}`}
-            >
-              {loading ? 'Saving Data...' : auditType === 'mill' ? 'Start Mill Assessment Questionnaire' : 'Next: Factory Assessment Questionnaire'} <ArrowRight className="w-5 h-5" />
-            </button>
-          </div>
-
-        </form>
-
-      </div>
+export default function NewAssessmentPage() {
+  return (
+    <main className="min-h-screen bg-slate-50 dark:bg-slate-900 p-6 md:p-12 text-slate-800 dark:text-slate-100">
+      <Suspense fallback={<div className="text-center p-8">Loading assessment setup...</div>}>
+        <AssessmentForm />
+      </Suspense>
     </main>
   )
 }
