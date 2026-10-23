@@ -63,18 +63,6 @@ export default function NewAssessmentPage() {
     setFormData({ ...formData, [e.target.name]: e.target.value })
   }
 
-  const handleComponentChange = (index: number, field: string, value: string) => {
-    const updated = [...components]
-    updated[index] = { ...updated[index], [field]: value }
-    setComponents(updated)
-  }
-
-  const handleProcessChange = (index: number, field: string, value: string) => {
-    const updated = [...processes]
-    updated[index] = { ...updated[index], [field]: value }
-    setProcesses(updated)
-  }
-
   const handleNext = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
@@ -84,7 +72,6 @@ export default function NewAssessmentPage() {
       .insert([
         {
           title: formData.title,
-          assessment_type: auditType,
           facility_name: formData.factory_name,
           auditor_name: formData.auditor_name,
           audit_date: new Date().toISOString().split('T')[0],
@@ -99,7 +86,6 @@ export default function NewAssessmentPage() {
     if (error) {
       alert('Error creating assessment: ' + error.message)
     } else if (data) {
-      // If auditType is mill, redirect to mill assessment page, otherwise factory assessment page
       if (auditType === 'mill') {
         router.push(`/assessment/mill/${data.id}`)
       } else {
