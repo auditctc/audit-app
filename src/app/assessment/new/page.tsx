@@ -72,6 +72,7 @@ function AssessmentForm() {
       .insert([
         {
           title: formData.title,
+          assessment_type: auditType, // assessment_type যুক্ত করা হলো
           facility_name: formData.factory_name,
           auditor_name: formData.auditor_name,
           audit_date: new Date().toISOString().split('T')[0],
